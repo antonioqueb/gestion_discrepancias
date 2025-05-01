@@ -33,14 +33,11 @@ class DiscrepancyLog(models.Model):
 
     description = fields.Text(string="Descripción / Motivo", tracking=True)
 
-    evidence_ids = fields.Many2many(
-        "ir.attachment",
-        "discrepancy_attachment_rel",
-        "discrepancy_id",
-        "attachment_id",
+    # ➋  CAMBIO: ahora es One2many a un nuevo modelo con la imagen binaria
+    evidence_ids = fields.One2many(
+        "discrepancy.evidence",
+        "log_id",
         string="Evidencia fotográfica",
-        tracking=True,
-        domain="[('mimetype', 'ilike', 'image/')]",
     )
 
     state = fields.Selection(
@@ -114,7 +111,6 @@ class DiscrepancyLogLine(models.Model):
         string="Discrepancia",
         ondelete="cascade",
     )
-
     product_id = fields.Many2one(
         "product.product",
         string="Producto",
@@ -156,3 +152,18 @@ class DiscrepancyLogLine(models.Model):
     def _onchange_product_id(self):
         if self.product_id:
             self.product_uom = self.product_id.uom_id
+
+
+# ➌  NUEVO: modelo para almacenar cada imagen individual con descripción
+class DiscrepancyEvidence(models.Model):
+    _name = "discrepancy.evidence"
+    _description = "Evidencia Fotográfica"
+
+    log_id = fields.Many2one(
+        "discrepancy.log",
+        string="Discrepancia relacionada",
+        required=True,
+        ondelete="cascade",
+    )
+    image = fields.Image(string="Imagen", required=True)  # vista usa widget="image"
+    description = fields.Char(string="Descripción")

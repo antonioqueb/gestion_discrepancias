@@ -82,8 +82,42 @@
                                 </form>
                             </field>
                         </page>
+
+                        <!-- ➍  NUEVA PRESENTACIÓN DE IMÁGENES EN MINIATURA -->
                         <page string="Evidencia">
-                            <field name="evidence_ids" widget="many2many_binary"/>
+                            <field name="evidence_ids" mode="kanban,list,form">
+                                <!-- Kanban (galería) -->
+                                <kanban>
+                                    <field name="image"/>
+                                    <field name="description"/>
+                                    <templates>
+                                        <t t-name="kanban-box">
+                                            <div class="oe_kanban_global_click">
+                                                <img t-if="record.image.raw_value"
+                                                     t-att-src="kanban_image(record, 'image')"
+                                                     style="max-width:100%;"/>
+                                                <div class="oe_center">
+                                                    <field name="description"/>
+                                                </div>
+                                            </div>
+                                        </t>
+                                    </templates>
+                                </kanban>
+
+                                <!-- Tree -->
+                                <tree>
+                                    <field name="image" widget="image" class="oe_avatar"/>
+                                    <field name="description"/>
+                                </tree>
+
+                                <!-- Form -->
+                                <form>
+                                    <group>
+                                        <field name="image" widget="image" class="oe_avatar"/>
+                                        <field name="description"/>
+                                    </group>
+                                </form>
+                            </field>
                         </page>
                     </notebook>
                 </sheet>
