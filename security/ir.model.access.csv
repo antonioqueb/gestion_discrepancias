@@ -1,3 +1,4 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_discrepancy_log_user,discrepancy.log,model_discrepancy_log,base.group_user,1,1,1,1
 access_discrepancy_log_line_user,discrepancy.log.line,model_discrepancy_log_line,base.group_user,1,1,1,1
+access_discrepancy_image_user,discrepancy.image,model_discrepancy_image,base.group_user,1,1,1,1
