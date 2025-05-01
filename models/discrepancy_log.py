@@ -2,7 +2,6 @@
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
 
-
 class DiscrepancyLog(models.Model):
     _name = "discrepancy.log"
     _description = "Gestión de Discrepancias de Recepción"
@@ -34,13 +33,9 @@ class DiscrepancyLog(models.Model):
     description = fields.Text(string="Descripción / Motivo", tracking=True)
 
     evidence_ids = fields.Many2many(
-        "ir.attachment",
-        "discrepancy_attachment_rel",
-        "discrepancy_id",
-        "attachment_id",
+        "discrepancy.image",
         string="Evidencia fotográfica",
         tracking=True,
-        domain="[('mimetype', 'ilike', 'image/')]",
     )
 
     state = fields.Selection(
