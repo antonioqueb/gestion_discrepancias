@@ -24,9 +24,11 @@ class DiscrepancyLog(models.Model):
         tracking=True,
     )
     location_id = fields.Many2one(
-        related="picking_id.location_dest_id",
+        'stock.location',
+        compute="_compute_location_id",
         store=True,
         readonly=True,
+        tracking=True,
     )
 
     description = fields.Text(string="Descripción / Motivo", tracking=True)
@@ -56,6 +58,11 @@ class DiscrepancyLog(models.Model):
         "log_id",
         string="Detalle de discrepancias",
     )
+
+    @api.depends('picking_id.location_dest_id')
+    def _compute_location_id(self):
+        for rec in self:
+            rec.location_id = rec.picking_id.location_dest_id.id if rec.picking_id.location_dest_id else False
 
     @api.model
     def create(self, vals):
