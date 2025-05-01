@@ -1,3 +1,11 @@
+-e ### models/__init__.py
+```
+# -*- coding: utf-8 -*-
+from . import discrepancy_log
+```
+
+-e ### models/discrepancy_log.py
+```
 # -*- coding: utf-8 -*-
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
@@ -156,3 +164,131 @@ class DiscrepancyLogLine(models.Model):
     def _onchange_product_id(self):
         if self.product_id:
             self.product_uom = self.product_id.uom_id
+```
+
+-e ### views/discrepancy_log_views.xml
+```
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Menú raíz -->
+    <menuitem id="menu_discrepancy_root"
+              name="Discrepancias"
+              sequence="15"/>
+
+    <!-- Acción principal -->
+    <record id="action_discrepancy_log" model="ir.actions.act_window">
+        <field name="name">Gestión de Discrepancias</field>
+        <field name="res_model">discrepancy.log</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p>Registra discrepancias con evidencia, autorízalas y corrige inventario sin detener la operación.</p>
+        </field>
+    </record>
+
+    <!-- Menú secundario -->
+    <menuitem id="menu_discrepancy_log"
+              name="Bitácora"
+              parent="menu_discrepancy_root"
+              action="action_discrepancy_log"
+              sequence="25"/>
+
+    <!-- Vista lista -->
+    <record id="view_discrepancy_log_list" model="ir.ui.view">
+        <field name="name">discrepancy.log.list</field>
+        <field name="model">discrepancy.log</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="picking_id"/>
+                <field name="state"/>
+                <field name="create_date"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Vista formulario -->
+    <record id="view_discrepancy_log_form" model="ir.ui.view">
+        <field name="name">discrepancy.log.form</field>
+        <field name="model">discrepancy.log</field>
+        <field name="arch" type="xml">
+            <form string="Discrepancia de Recepción">
+                <header>
+                    <button name="action_submit" type="object" string="Enviar"
+                            modifiers="{'invisible': [['state','!=','draft']]}"/>
+                    <button name="action_approve" type="object" string="Autorizar"
+                            modifiers="{'invisible': [['state','!=','to_approve']]}"/>
+                    <button name="action_apply_correction" type="object" string="Aplicar corrección"
+                            modifiers="{'invisible': [['state','!=','approved']]}"/>
+                    <button name="action_cancel" type="object" string="Cancelar"
+                            modifiers="{'invisible': [['state','in',['corrected','cancelled']]]}"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,to_approve,approved,corrected,cancelled"/>
+                </header>
+
+                <sheet>
+                    <group>
+                        <field name="name" readonly="1"/>
+                        <field name="picking_id" domain="[('state','not in',('cancel','done'))]"/>
+                        <field name="description" placeholder="Motivo de la discrepancia…"/>
+                    </group>
+
+                    <notebook>
+                        <page string="Detalle">
+                            <field name="line_ids" mode="list,form">
+                                <list>
+                                    <field name="product_id"/>
+                                    <field name="expected_qty"/>
+                                    <field name="received_qty"/>
+                                    <field name="difference_qty"/>
+                                    <field name="product_uom"/>
+                                </list>
+                                <form>
+                                    <group>
+                                        <field name="product_id"/>
+                                        <field name="expected_qty"/>
+                                        <field name="received_qty"/>
+                                        <field name="product_uom"/>
+                                    </group>
+                                </form>
+                            </field>
+                        </page>
+                        <page string="Evidencia">
+                            <field name="evidence_ids" widget="many2many_image"/>
+
+                        </page>
+                    </notebook>
+                </sheet>
+
+                <!-- Chatter nativo -->
+                <chatter/>
+            </form>
+        </field>
+    </record>
+</odoo>
+```
+
+### __init__.py
+```
+# -*- coding: utf-8 -*-
+from . import models
+```
+### __manifest__.py
+```
+# -*- coding: utf-8 -*-
+{
+    "name": "Gestión de Discrepancias",
+    "version": "1.0",
+    "summary": "Flujo de discrepancias con evidencia fotográfica, autorización y re-manifiesto",
+    "author": "Alphaqueb Consulting",
+    "license": "LGPL-3",
+    "category": "Operations",
+    "depends": ["mail", "stock", "product", "uom"],
+    "data": [
+        "security/ir.model.access.csv",
+        "data/ir_sequence_data.xml",
+        "views/discrepancy_log_views.xml",
+    ],
+    "installable": True,
+    "application": False,
+}
+```
