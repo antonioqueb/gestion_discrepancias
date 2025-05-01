@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="seq_discrepancy_log" model="ir.sequence">
+        <field name="name">Folio Discrepancia</field>
+        <field name="code">discrepancy.log.sequence</field>
+        <field name="prefix">DSCR-%(y)s-</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+    </record>
+</odoo>
