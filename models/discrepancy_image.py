@@ -5,5 +5,6 @@ class DiscrepancyImage(models.Model):
     _name = 'discrepancy.image'
     _description = 'Imagen de Evidencia'
 
+    log_id = fields.Many2one('discrepancy.log', string="Discrepancia", ondelete="cascade")
     name = fields.Char("Descripción")
     image_1920 = fields.Image("Imagen", required=True)

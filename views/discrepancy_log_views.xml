@@ -82,8 +82,12 @@
                                 </form>
                             </field>
                         </page>
+
                         <page string="Evidencia">
-                            <field name="evidence_ids" widget="many2many_image"/>
+                            <field name="evidence_ids" widget="one2many_kanban" context="{
+                                'form_view_ref': 'tu_modulo.view_discrepancy_image_form',
+                                'kanban_view_ref': 'tu_modulo.view_discrepancy_image_kanban'
+                            }"/>
                         </page>
                     </notebook>
                 </sheet>

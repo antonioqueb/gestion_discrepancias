@@ -9,7 +9,6 @@ class DiscrepancyLog(models.Model):
     _order = "create_date desc"
     _mail_post_on_create = True
 
-    # ─── Cabecera ────────────────────────────────────────────────────────────
     name = fields.Char(
         string="Folio",
         required=True,
@@ -32,8 +31,9 @@ class DiscrepancyLog(models.Model):
 
     description = fields.Text(string="Descripción / Motivo", tracking=True)
 
-    evidence_ids = fields.Many2many(
+    evidence_ids = fields.One2many(
         "discrepancy.image",
+        "log_id",
         string="Evidencia fotográfica",
         tracking=True,
     )
@@ -57,7 +57,6 @@ class DiscrepancyLog(models.Model):
         string="Detalle de discrepancias",
     )
 
-    # ─── Secuencia ──────────────────────────────────────────────────────────
     @api.model
     def create(self, vals):
         if vals.get("name", _("Nuevo")) == _("Nuevo"):
@@ -66,7 +65,6 @@ class DiscrepancyLog(models.Model):
             ) or _("Nuevo")
         return super().create(vals)
 
-    # ─── Acciones de flujo ──────────────────────────────────────────────────
     def action_submit(self):
         for rec in self:
             if not rec.line_ids:
@@ -78,14 +76,12 @@ class DiscrepancyLog(models.Model):
             rec.state = "approved"
 
     def action_apply_correction(self):
-        """Ajusta inventario según las diferencias y pasa a CORREGIDO."""
         for rec in self:
             if rec.state != "approved":
                 raise UserError(_("La discrepancia debe estar autorizada antes de corregir."))
             for line in rec.line_ids:
                 diff = line.difference_qty
                 if diff:
-                    # Ajuste inmediato de inventario sin detener la operación
                     self.env["stock.quant"]._update_available_quantity(
                         line.product_id,
                         rec.location_id,
