@@ -84,7 +84,6 @@
                         </page>
                         <page string="Evidencia">
                             <field name="evidence_ids" widget="many2many_image"/>
-
                         </page>
                     </notebook>
                 </sheet>
@@ -92,6 +91,28 @@
                 <!-- Chatter nativo -->
                 <chatter/>
             </form>
+        </field>
+    </record>
+
+    <!-- Vista Kanban para imágenes -->
+    <record id="view_discrepancy_image_kanban" model="ir.ui.view">
+        <field name="name">discrepancy.image.kanban</field>
+        <field name="model">discrepancy.image</field>
+        <field name="arch" type="xml">
+            <kanban>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_global_click">
+                            <div class="o_kanban_image">
+                                <field name="image_1920" widget="image" class="o_image_128"/>
+                            </div>
+                            <div class="oe_kanban_details">
+                                <strong><field name="name"/></strong>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
         </field>
     </record>
 </odoo>
