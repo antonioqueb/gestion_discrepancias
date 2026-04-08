@@ -139,7 +139,7 @@ class DiscrepancyLogLine(models.Model):
     product_uom_category_id = fields.Many2one(
         "uom.category",
         string="Categoría UoM",
-        related="product_id.uom_id.category_id",
+        compute="_compute_product_uom_category_id",
         readonly=True,
     )
     product_uom = fields.Many2one(
@@ -156,6 +156,14 @@ class DiscrepancyLogLine(models.Model):
         digits="Product Unit of Measure",
         tracking=True,
     )
+
+    @api.depends("product_id")
+    def _compute_product_uom_category_id(self):
+        for line in self:
+            category = False
+            if line.product_id and line.product_id.uom_id:
+                category = line.product_id.uom_id.category_id
+            line.product_uom_category_id = category
 
     @api.depends("expected_qty", "received_qty")
     def _compute_difference_qty(self):
