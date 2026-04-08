@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Menú raíz -->
     <menuitem id="menu_discrepancy_root"
               name="Discrepancias"
               sequence="15"/>
 
-    <!-- Acción principal -->
     <record id="action_discrepancy_log" model="ir.actions.act_window">
         <field name="name">Gestión de Discrepancias</field>
         <field name="res_model">discrepancy.log</field>
@@ -15,14 +13,12 @@
         </field>
     </record>
 
-    <!-- Menú secundario -->
     <menuitem id="menu_discrepancy_log"
               name="Bitácora"
               parent="menu_discrepancy_root"
               action="action_discrepancy_log"
               sequence="25"/>
 
-    <!-- Vista lista -->
     <record id="view_discrepancy_log_list" model="ir.ui.view">
         <field name="name">discrepancy.log.list</field>
         <field name="model">discrepancy.log</field>
@@ -36,7 +32,6 @@
         </field>
     </record>
 
-    <!-- Vista formulario -->
     <record id="view_discrepancy_log_form" model="ir.ui.view">
         <field name="name">discrepancy.log.form</field>
         <field name="model">discrepancy.log</field>
@@ -44,13 +39,13 @@
             <form string="Discrepancia de Recepción">
                 <header>
                     <button name="action_submit" type="object" string="Enviar"
-                            modifiers="{'invisible': [['state','!=','draft']]}"/>
+                            invisible="state != 'draft'"/>
                     <button name="action_approve" type="object" string="Autorizar"
-                            modifiers="{'invisible': [['state','!=','to_approve']]}"/>
+                            invisible="state != 'to_approve'"/>
                     <button name="action_apply_correction" type="object" string="Aplicar corrección"
-                            modifiers="{'invisible': [['state','!=','approved']]}"/>
+                            invisible="state != 'approved'"/>
                     <button name="action_cancel" type="object" string="Cancelar"
-                            modifiers="{'invisible': [['state','in',['corrected','cancelled']]]}"/>
+                            invisible="state in ('corrected', 'cancelled')"/>
                     <field name="state" widget="statusbar"
                            statusbar_visible="draft,to_approve,approved,corrected,cancelled"/>
                 </header>
@@ -58,47 +53,56 @@
                 <sheet>
                     <group>
                         <field name="name" readonly="1"/>
-                        <field name="picking_id" domain="[('state','not in',('cancel','done'))]"/>
+                        <field name="picking_id" domain="[('state', 'not in', ('cancel', 'done'))]"/>
                         <field name="description" placeholder="Motivo de la discrepancia…"/>
                     </group>
 
                     <notebook>
                         <page string="Detalle">
                             <field name="line_ids" mode="list,form">
-                                <list>
+                                <list editable="bottom">
                                     <field name="product_id"/>
+                                    <field name="product_uom_category_id" column_invisible="1"/>
                                     <field name="expected_qty"/>
                                     <field name="received_qty"/>
-                                    <field name="difference_qty"/>
-                                    <field name="product_uom"/>
+                                    <field name="difference_qty" readonly="1"/>
+                                    <field name="product_uom" domain="[('category_id', '=', product_uom_category_id)]"/>
                                 </list>
                                 <form>
                                     <group>
                                         <field name="product_id"/>
+                                        <field name="product_uom_category_id" invisible="1"/>
                                         <field name="expected_qty"/>
                                         <field name="received_qty"/>
-                                        <field name="product_uom"/>
+                                        <field name="difference_qty" readonly="1"/>
+                                        <field name="product_uom" domain="[('category_id', '=', product_uom_category_id)]"/>
                                     </group>
                                 </form>
                             </field>
                         </page>
 
                         <page string="Evidencia">
-                            <field name="evidence_ids" widget="one2many_kanban" context="{
-                                'form_view_ref': 'tu_modulo.view_discrepancy_image_form',
-                                'kanban_view_ref': 'tu_modulo.view_discrepancy_image_kanban'
-                            }"/>
+                            <field name="evidence_ids">
+                                <list editable="bottom">
+                                    <field name="name"/>
+                                    <field name="image_1920" widget="image" options="{'size': [90, 90]}"/>
+                                </list>
+                                <form>
+                                    <group>
+                                        <field name="name"/>
+                                        <field name="image_1920" widget="image"/>
+                                    </group>
+                                </form>
+                            </field>
                         </page>
                     </notebook>
                 </sheet>
 
-                <!-- Chatter nativo -->
                 <chatter/>
             </form>
         </field>
     </record>
 
-    <!-- Vista Kanban para imágenes -->
     <record id="view_discrepancy_image_kanban" model="ir.ui.view">
         <field name="name">discrepancy.image.kanban</field>
         <field name="model">discrepancy.image</field>
