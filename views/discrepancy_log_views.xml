@@ -31,6 +31,9 @@
             <list>
                 <field name="name"/>
                 <field name="picking_id"/>
+                <field name="measurement_mode" widget="badge"
+                       decoration-info="measurement_mode == 'kg'"
+                       decoration-success="measurement_mode == 'pcs'"/>
                 <field name="state"/>
                 <field name="create_date"/>
             </list>
@@ -60,9 +63,22 @@
 
                 <sheet>
                     <group>
-                        <field name="name" readonly="1"/>
-                        <field name="picking_id" domain="[('state', 'not in', ('cancel', 'done'))]"/>
-                        <field name="description" placeholder="Motivo de la discrepancia…"/>
+                        <group>
+                            <field name="name" readonly="1"/>
+                            <field name="picking_id"
+                                   domain="[('state', 'not in', ('cancel', 'done'))]"
+                                   readonly="state != 'draft'"/>
+                        </group>
+                        <group>
+                            <field name="measurement_mode"
+                                   widget="radio"
+                                   options="{'horizontal': true}"
+                                   readonly="state != 'draft'"/>
+                        </group>
+                    </group>
+
+                    <group>
+                        <field name="description" placeholder="Motivo de la discrepancia…" nolabel="1"/>
                     </group>
 
                     <notebook>
@@ -73,10 +89,15 @@
 
                                 <list editable="bottom">
                                     <field name="product_id"/>
-                                    <field name="expected_qty"/>
-                                    <field name="received_qty"/>
-                                    <field name="difference_qty" readonly="1"/>
-                                    <field name="product_uom"/>
+                                    <field name="expected_qty"
+                                           string="Esperada"/>
+                                    <field name="received_qty"
+                                           string="Recibida"/>
+                                    <field name="difference_qty" readonly="1"
+                                           string="Diferencia"/>
+                                    <field name="unit_label" readonly="1" string="Unidad"/>
+                                    <field name="product_uom" optional="hide"/>
+                                    <field name="measurement_mode" optional="hide"/>
                                 </list>
 
                                 <form>
@@ -85,6 +106,7 @@
                                         <field name="expected_qty"/>
                                         <field name="received_qty"/>
                                         <field name="difference_qty" readonly="1"/>
+                                        <field name="unit_label" readonly="1"/>
                                         <field name="product_uom"/>
                                     </group>
                                 </form>
