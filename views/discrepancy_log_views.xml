@@ -51,17 +51,27 @@
                     <button name="action_submit" type="object" string="Enviar"
                             invisible="state != 'draft'"/>
                     <button name="action_approve" type="object" string="Autorizar"
-                            invisible="state != 'to_approve'"/>
+                            invisible="state != 'to_approve'"
+                            groups="gestion_discrepancias.group_discrepancia_autorizador,gestion_discrepancias.group_discrepancia_manager"/>
                     <button name="action_apply_correction" type="object" string="Aplicar corrección"
-                            invisible="state != 'approved'"/>
+                            invisible="state != 'approved'"
+                            groups="gestion_discrepancias.group_discrepancia_autorizador,gestion_discrepancias.group_discrepancia_manager"/>
                     <button name="action_cancel" type="object" string="Cancelar"
                             invisible="state in ('corrected', 'cancelled')"/>
+                    <button name="%(action_report_discrepancy_log)d" type="action"
+                            string="Imprimir" class="btn-secondary"/>
 
                     <field name="state" widget="statusbar"
                            statusbar_visible="draft,to_approve,approved,corrected,cancelled"/>
                 </header>
 
                 <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_correction_pickings" type="object" class="oe_stat_button"
+                                icon="fa-exchange" invisible="correction_picking_count == 0">
+                            <field name="correction_picking_count" widget="statinfo" string="Correcciones"/>
+                        </button>
+                    </div>
                     <group>
                         <group>
                             <field name="name" readonly="1"/>
@@ -74,6 +84,13 @@
                                    widget="radio"
                                    options="{'horizontal': true}"
                                    readonly="state != 'draft'"/>
+                        </group>
+                    </group>
+
+                    <group>
+                        <group string="Autorización">
+                            <field name="approved_by" readonly="1"/>
+                            <field name="approved_date" readonly="1"/>
                         </group>
                     </group>
 

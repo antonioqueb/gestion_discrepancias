@@ -9,7 +9,9 @@
     "depends": ["mail", "stock", "product", "uom"],
     "data": [
         "security/ir.model.access.csv",
+        "security/security.xml",
         "data/ir_sequence_data.xml",
+        "reports/discrepancy_log_report.xml",
         "views/discrepancy_log_views.xml",
     ],
     "installable": True,

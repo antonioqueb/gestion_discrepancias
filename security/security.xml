@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- Grupo base: visibilidad general de discrepancias -->
+        <record id="group_discrepancia_user" model="res.groups">
+            <field name="name">Discrepancias / Usuario</field>
+        </record>
+
+        <!-- Segregación de funciones: quien reporta no autoriza -->
+        <record id="group_discrepancia_reportante" model="res.groups">
+            <field name="name">Discrepancias / Reportar</field>
+            <field name="implied_ids" eval="[(4, ref('group_discrepancia_user'))]"/>
+        </record>
+
+        <record id="group_discrepancia_autorizador" model="res.groups">
+            <field name="name">Discrepancias / Autorizar y Corregir Inventario</field>
+            <field name="implied_ids" eval="[(4, ref('group_discrepancia_user'))]"/>
+        </record>
+
+        <record id="group_discrepancia_manager" model="res.groups">
+            <field name="name">Discrepancias / Administrador</field>
+            <field name="implied_ids" eval="[
+                (4, ref('group_discrepancia_reportante')),
+                (4, ref('group_discrepancia_autorizador')),
+            ]"/>
+        </record>
+
+    </data>
+</odoo>

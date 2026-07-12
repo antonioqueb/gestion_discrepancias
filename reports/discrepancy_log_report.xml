@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="paperformat_discrepancy_log" model="report.paperformat">
+        <field name="name">Reporte de Discrepancia de Recepción</field>
+        <field name="default" eval="False"/>
+        <field name="format">A4</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">30</field>
+        <field name="margin_bottom">20</field>
+        <field name="margin_left">10</field>
+        <field name="margin_right">10</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">35</field>
+        <field name="dpi">90</field>
+    </record>
+
+    <record id="action_report_discrepancy_log" model="ir.actions.report">
+        <field name="name">Reporte de Discrepancia</field>
+        <field name="model">discrepancy.log</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">gestion_discrepancias.report_discrepancy_log_document</field>
+        <field name="report_file">gestion_discrepancias.report_discrepancy_log_document</field>
+        <field name="binding_model_id" ref="model_discrepancy_log"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="paperformat_discrepancy_log"/>
+    </record>
+
+    <template id="report_discrepancy_log_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <style>
+                            .disc-log-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+                            .disc-log-table th, .disc-log-table td { border: 1px solid #999; padding: 4px 6px; font-size: 11px; }
+                            .disc-log-table th { background-color: #f1f1f1; }
+                            .row-diff { background-color: #fff3cd; }
+                        </style>
+
+                        <h2>Reporte de Discrepancia de Recepción</h2>
+                        <table class="disc-log-table" style="margin-bottom: 12px;">
+                            <tr>
+                                <th>Folio</th>
+                                <td><span t-field="doc.name"/></td>
+                                <th>Embarque</th>
+                                <td><span t-field="doc.picking_id.name"/></td>
+                            </tr>
+                            <tr>
+                                <th>Fecha</th>
+                                <td><span t-field="doc.create_date" t-options="{'widget': 'date'}"/></td>
+                                <th>Modo de Medición</th>
+                                <td><span t-field="doc.measurement_mode"/></td>
+                            </tr>
+                            <tr>
+                                <th>Estado</th>
+                                <td><span t-field="doc.state"/></td>
+                                <th>Autorizado por</th>
+                                <td>
+                                    <span t-field="doc.approved_by.name"/>
+                                    <span t-if="doc.approved_date"> — <span t-field="doc.approved_date" t-options="{'widget': 'datetime'}"/></span>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <p t-if="doc.description"><strong>Descripción: </strong><span t-field="doc.description"/></p>
+
+                        <h4>Detalle de Diferencias</h4>
+                        <table class="disc-log-table">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Cantidad Esperada</th>
+                                    <th>Cantidad Recibida</th>
+                                    <th>Diferencia</th>
+                                    <th>Unidad</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="doc.line_ids" t-as="line"
+                                    t-att-class="'row-diff' if line.difference_qty else ''">
+                                    <td><span t-field="line.product_id.display_name"/></td>
+                                    <td><span t-field="line.expected_qty"/></td>
+                                    <td><span t-field="line.received_qty"/></td>
+                                    <td><span t-field="line.difference_qty"/></td>
+                                    <td><span t-field="line.unit_label"/></td>
+                                </tr>
+                                <tr t-if="not doc.line_ids">
+                                    <td colspan="5">Sin líneas registradas.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <h4 style="margin-top: 16px;">Evidencia Fotográfica</h4>
+                        <div t-if="doc.evidence_ids" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                            <div t-foreach="doc.evidence_ids" t-as="image" style="text-align: center; width: 120px;">
+                                <span t-if="image.image_1920" t-field="image.image_1920"
+                                      t-options="{'widget': 'image'}"
+                                      style="max-width: 110px; max-height: 110px; border: 1px solid #ccc;"/>
+                                <div style="font-size: 10px;"><span t-field="image.name"/></div>
+                            </div>
+                        </div>
+                        <p t-if="not doc.evidence_ids">Sin evidencia fotográfica adjunta.</p>
+
+                        <h4 style="margin-top: 16px;" t-if="doc.correction_picking_ids">Transferencias de Corrección Generadas</h4>
+                        <table class="disc-log-table" t-if="doc.correction_picking_ids">
+                            <thead>
+                                <tr>
+                                    <th>Transferencia</th>
+                                    <th>Origen</th>
+                                    <th>Destino</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="doc.correction_picking_ids" t-as="picking">
+                                    <td><span t-field="picking.name"/></td>
+                                    <td><span t-field="picking.location_id.display_name"/></td>
+                                    <td><span t-field="picking.location_dest_id.display_name"/></td>
+                                    <td><span t-field="picking.state"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <p style="margin-top: 20px; font-size: 10px; color: #666;">
+                            Este documento es un comprobante interno de discrepancia de recepción y no
+                            reemplaza ningún manifiesto ni documento fiscal.
+                        </p>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>
